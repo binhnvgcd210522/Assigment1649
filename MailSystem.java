@@ -76,6 +76,7 @@ public class MailSystem {
     public void receiveMessage(MailSystem mailSystem) {
         long startTime = System.nanoTime();
         Message message = new Message();
+        //poll message from outbox queue then offer to connected system inbox queue
         while (!mailSystem.outboxQueue.isEmpty()) {
             message = mailSystem.outboxQueue.poll();
             this.inboxQueue.offer(message);
@@ -99,6 +100,7 @@ public class MailSystem {
     private void processingMessage() {
         long startTime = System.nanoTime();
         int count = 0;
+        //push message from inbox queue into stack
         while (!inboxQueue.isEmpty() && count < 5) {
             Message message = inboxQueue.poll();
             processingStack.push(message);

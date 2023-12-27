@@ -37,11 +37,7 @@ public class Main {
                         break;
                     case 2:
                         if (count < 10) {
-                            System.out.print("Input system name: ");
-                            String string = scanner.nextLine();
-                            //add to system storage
-                            MailSystem newSystem = new MailSystem(string);
-                            mailSystems[count] = newSystem;
+                            createSystem(mailSystems, count, scanner);
                             count++;
                         } else {
                             System.out.println(RED_Color + "Too many systems. Stop create." + RESET_Color);
@@ -54,9 +50,11 @@ public class Main {
                         }
                         System.out.print("Enter system name: ");
                         String name = scanner.nextLine();
+                        boolean found = false;
                         //Find system
                         for (int i = 0; i < count; i++) {
                             if (mailSystems[i].systemName.equals(name)) {
+                                found = true;
                                 int subChoice = 0;
                                 while (subChoice != 6) {
                                     showSubMenu(mailSystems[i]);
@@ -77,7 +75,7 @@ public class Main {
                                                 disconnectSystem(mailSystems[i]);
                                                 break;
                                             case 5:
-                                                checkInbox(mailSystems[i]);
+                                                mailSystems[i].checkInBox();
                                                 break;
                                             case 6:
                                                 System.out.println("Going Back...");
@@ -95,6 +93,7 @@ public class Main {
                                 break;
                             }
                         }
+                        if (!found) System.out.println(RED_Color + "System not found." + RESET_Color);
                         break;
                     case 4:
                         System.out.println("Exiting program...");
@@ -111,6 +110,13 @@ public class Main {
         }
         scanner.close();
     }
+    static void createSystem(MailSystem[] mailSystems, int count, Scanner scanner){
+        System.out.print("Input system name: ");
+        String string = scanner.nextLine();
+        //add to system storage
+        MailSystem newSystem = new MailSystem(string);
+        mailSystems[count] = newSystem;
+    }
     static void sendMessage(MailSystem mailSystem, Scanner scanner) {
         System.out.print("Input message: ");
         String message = scanner.nextLine();
@@ -124,10 +130,15 @@ public class Main {
             String system = scanner.nextLine();
             for (int j = 0; j < count; j++) {
                 if (mailSystems[j].systemName.equals(system)) {
+                    if(mailSystems[j].connectedSystem != null){
+                        System.out.println(RED_Color + "System "+ system +" is connecting to other." + RESET_Color);
+                        return;
+                    }
                     mailSystem.connect(mailSystems[j]);
                     return;
                 }
             }
+            System.out.println(RED_Color +"System "+ system+ " not found." + RESET_Color);
         } else mailSystem.checkConnect();
     }
 
@@ -151,10 +162,6 @@ public class Main {
         if (mailSystem.connectedSystem != null) {
             mailSystem.disConnect(mailSystem.connectedSystem);
         } else System.out.println(RED_Color +"System is not connected yet."+ RESET_Color);
-    }
-
-    static void checkInbox(MailSystem mailSystem) {
-        mailSystem.checkInBox();
     }
 
     static void showSubMenu(MailSystem mailSystem) {
